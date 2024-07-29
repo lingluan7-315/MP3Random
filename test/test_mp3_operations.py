@@ -7,7 +7,6 @@ from subprocess import CREATE_NO_WINDOW
 from unittest.mock import patch, MagicMock
 
 import pytest
-
 from MP3Random.mp3random.mp3_operations import backup, to_mp3, mp3_clip, mp3_gain, _re_name
 
 

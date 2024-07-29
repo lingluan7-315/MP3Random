@@ -50,12 +50,12 @@
 #options span {
     font-size: 15px;
 }
-.normal {
+#options .normal {
     font-size: 15px;
     color: black;
     pointer-events: none;
 }
-.error {
+#options .error {
     font-size: 15px;
     color: red;
     cursor: pointer;

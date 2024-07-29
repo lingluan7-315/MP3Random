@@ -1,0 +1,2 @@
+mutagen==1.45.1
+pywebview==5.1

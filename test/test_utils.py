@@ -7,7 +7,6 @@ import os
 from unittest.mock import patch
 
 import pytest
-
 from MP3Random.mp3random.utils import create_logger, create_path, time_from, time_list_from, check_dependence
 
 

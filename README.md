@@ -1,293 +1,161 @@
-# VizTracer
+# MP3Random
 
-[![build](https://github.com/gaogaotiantian/viztracer/workflows/build/badge.svg)](https://github.com/gaogaotiantian/viztracer/actions?query=workflow%3Abuild)  [![flake8](https://github.com/gaogaotiantian/viztracer/workflows/lint/badge.svg)](https://github.com/gaogaotiantian/viztracer/actions?query=workflow%3ALint)  [![readthedocs](https://img.shields.io/readthedocs/viztracer)](https://viztracer.readthedocs.io/en/stable/)  [![coverage](https://img.shields.io/codecov/c/github/gaogaotiantian/viztracer)](https://codecov.io/gh/gaogaotiantian/viztracer)  [![pypi](https://img.shields.io/pypi/v/viztracer.svg)](https://pypi.org/project/viztracer/)  [![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/gaogaotiantian.viztracer-vscode?logo=visual-studio)](https://marketplace.visualstudio.com/items?itemName=gaogaotiantian.viztracer-vscode)  [![support-version](https://img.shields.io/pypi/pyversions/viztracer)](https://img.shields.io/pypi/pyversions/viztracer)  [![license](https://img.shields.io/github/license/gaogaotiantian/viztracer)](https://github.com/gaogaotiantian/viztracer/blob/master/LICENSE)  [![commit](https://img.shields.io/github/last-commit/gaogaotiantian/viztracer)](https://github.com/gaogaotiantian/viztracer/commits/master)  [![sponsor](https://img.shields.io/badge/%E2%9D%A4-Sponsor%20me-%23c96198?style=flat&logo=GitHub)](https://github.com/sponsors/gaogaotiantian)
+## 简介
 
-VizTracer is a low-overhead logging/debugging/profiling tool that can trace and visualize your python code execution.
+`MP3Random`是一个用于音乐文件操作的程序，主要用于按标签不相邻原则随机排列音乐文件，并统一音乐格式和音量。
 
-The front-end UI is powered by [Perfetto](https://perfetto.dev/). **Use "AWSD" to zoom/navigate**.
-More help can be found in "Support - Controls".
+主要功能有：
 
-[![example_img](https://github.com/gaogaotiantian/viztracer/blob/master/img/example.png)](https://github.com/gaogaotiantian/viztracer/blob/master/img/example.png)
+1. 格式转换：将音乐文件转换为mp3格式。
+2. 音乐切片：将音乐文件按照指定时间切片。
+3. 音量调整：调整音乐文件的音量。
+4. 随机排列：按照标签不相邻原则，随机排列音乐文件。
 
-## Highlights
+## 使用
 
-* Detailed function entry/exit information on timeline with source code
-* Super easy to use, no source code change for most features, no package dependency
-* Supports threading, multiprocessing, subprocess and async
-* Powerful front-end, able to render GB-level trace smoothly
-* Works on Linux/MacOS/Windows
+`dist`目录下的`MP3Random.exe`是一个可执行文件，下载后可直接运行，无需安装。
 
-## Install
+程序对音乐的操作基于`ffmpeg`和`mp3gain`，`dist`目录下的`ffmpeg.exe`和`mp3gain.exe`
+是程序的依赖文件，程序会自动调用这两个文件，也可自行下载并配置在系统环境变量中。
 
-The preferred way to install VizTracer is via pip
+也可以通过源码运行，需要安装Python3.8及以上版本，并安装依赖库：
 
-```sh
-pip install viztracer
+```shell
+pip install -r requirements.txt
 ```
 
-## Basic Usage
+其中包括 `pywebview` 和 `mutagen` 两个库。
 
-### Command Line
+## 依赖
 
-Assume you have a python script to run:
+程序依赖于以下软件：
 
-```sh
-python3 my_script.py arg1 arg2
+1. `ffmpeg`：用于音频格式转换和切片。
+
+   `ffmpeg`是一个开源的音视频处理工具，可以处理音频、视频等多种格式的文件(https://ffmpeg.org/)
+   。本程序使用的版本为基于`LGPL`开源的[BtbN](https://github.com/BtbN/FFmpeg-Builds/releases)
+   打包的版本[ffmpeg-master-latest-win64-lgpl.zip](https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-lgpl.zip)。
+
+2. `mp3gain`：用于音频音量调整。
+
+   `mp3gain`是一个开源的音频音量调整工具，可以调整音频文件的音量(https://mp3gain.sourceforge.net)
+   。本程序使用的版本为基于`LGPL`
+   开源的[mp3gain-dos-1_5_2.zip](https://sourceforge.net/projects/mp3gain/files/mp3gain/1.5.2/mp3gain-dos-1_5_2.zip/download)
+   ，即`mp3gain`命令行版本。
+
+源代码还依赖于以下Python库：
+
+1. `pywebview`：用于程序的图形界面。
+
+   `pywebview`是一个Python库，可以将Web页面嵌入到Python程序中，用于构建图形界面(https://pywebview.flowrl.com/)，基于`BSD`
+   协议开源。
+
+2. `mutagen`：用于音频文件的标签读取。
+
+   `mutagen`是一个Python库，用于读取音频文件的标签信息(https://mutagen.readthedocs.io/)，基于`GPL`开源。
+
+## 操作演示
+
+打开程序，其主界面，也即操作界面如下：
+
+![主界面](./img/main.png)
+
+**⚠警告：请确保所选目录内仅有音乐文件，目录内的任何文件均将作为音乐文件进行处理！**
+
+打开程序后，将检测ffmpeg和mp3gain是否存在于当前目录或系统环境变量中，如果不存在，将提示❌，此时可单击该按钮选择对应的文件。
+
+使用时，共可选四个过程：`格式转换`、`音乐切片`、`音量调整`、`随机排列`。
+
+1. `格式转换`：将音乐文件转换为mp3格式。
+
+   选择`格式转换`，程序将`转换前音乐目录`内的文件转换为`mp3`格式，并保存在`转换后音乐目录`下。
+
+2. `音乐切片`：将音乐文件按照指定时间切片。
+
+   选择`音乐切片`，程序将`转换后音乐目录`内的文件按照`起始时间`和`结束时间`进行切片，并保存在原目录下。
+
+   **⚠警告：音乐切片不可逆，且将删除切片前文件！程序不会对切片前音乐进行备份！**
+
+3. `音量调整`：调整音乐文件的音量。
+
+   选择`音量调整`，程序将`转换后音乐目录`内的文件按照`音乐音量调整至`进行调整，为直接操作原文件。
+
+4. `随机排列`：按照标签不相邻原则，随机排列音乐文件。
+
+   选择`随机排列`，程序将`转换后音乐目录`内的文件按照标签不相邻原则进行随机排列，并保存在`随机排列后目录`下。
+
+单击`开始`按钮，程序将开始执行所选过程，程序运行时界面如下：
+
+![运行界面](./img/run.png)
+
+程序运行时，界面将被锁定，无法进行其他操作，直至程序运行结束。
+
+> 注：若此时需要终止操作，可直接关闭程序，程序将自动终止当前操作。
+
+程序运行结束后，将显示如下界面，此时可直接关闭程序即可：
+
+![结束界面](./img/end.png)
+
+程序运行完成后，即可在各文件夹下查看对应的文件，其中`结果文件输出至`保存了音乐的信息，包括按照标签的分类统计，及排序的结果，示例如下：
+
+![结果文件](./img/result.png)
+
+> 注：随机质量为0-100%，随机质量越大，代表本次随机越无序，随即质量越小，代表本次随机越有序。其大小不表示随机体感的好坏。
+
+## 命名格式
+
+音乐文件的命名格式为：
+
+```shell
+[标签]文件名（起始时间-结束时间）.后缀名
 ```
 
-You can simply use VizTracer by
+1. 方括号扩中的是标签，支持`【】`、`[]`、`［］`三种格式括号的识别；
 
-```sh
-viztracer my_script.py arg1 arg2
-```
+   方括号必须放在最前面，否则识别不到；
 
-<details>
+   如果没有则识别为`无标签`。
 
-<summary>
-A <code>result.json</code> file will be generated, which you can open with <code>vizviewer</code>
-</summary>
+2. 圆括号中的是起止时间，用于裁剪音乐，中间必须为`-`否则不识别，支持`（）`、`()`两种格式括号的识别；
 
-vizviewer will host an HTTP server on ``http://localhost:9001``. You can also open your browser and use that address.
+   圆括号可以放在任意位置；
 
-If you do not want vizviewer to open the webbrowser automatically, you can use
+   如果没有则认为无需切割；
 
-```sh
-vizviewer --server_only result.json
-```
+   起止时间可以设置任意数字或字符串，以秒为单位，支持负数，符号同样为`-`，超出预计的`-`
+   符号会导致识别失败，负数代表从结尾往前切割，最多支持四位小数，字符串（包括空字符串）代表不切割该方向；
 
-If you just need to bring up the trace report once, and do not want the persistent server, use
+   如果有多个符合格式的圆括号，会以最后一个为准，其他作为名称的一部分。
 
-```sh
-vizviewer --once result.json
-```
+   示例如下：
 
-</details>
+    1. `（----）`、`（5---）`、`（备注）`均将识别失败，不进行切割且将其视为文件名的一部分；
 
-```sh
-vizviewer result.json
-# You can display all the files in a directory and open them in browser too
-vizviewer ./
-# For very large trace files, try external trace processor
-vizviewer --use_external_processor result.json
-```
+    2. `（---5）`识别为“-”、“-5”，视为从开头到倒数5s进行切割；`（--5）`识别为“”、“-5”，视为从开头到倒数5s进行切割；`（5--）`
+       识别为“5”、“-”，视为从5s到结束进行切割；`（5-）`识别为“5”、“”，视为从5s到结束进行切割；`（-5）`识别为“”、“5”，视为从开头到5s进行切割；
 
-A [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=gaogaotiantian.viztracer-vscode)
-is available to make your life even easier.
+    3. `（---）`识别为“-”、“-”代表从开始到结束进行切割；
 
-<p align="center">
-    <img src="https://github.com/gaogaotiantian/viztracer-vscode/raw/master/assets/demo.gif" />
-</p>
+    4. `（0--10）`识别为“0”、“-10”代表从0s到倒数10s进行切割；
 
-<details>
+    5. `（-15--5）`识别为“-15”、“-5”代表从倒数15s到倒数5s进行切割；
 
-<summary>
-Add <code>--open</code> to open the reports right after tracing
-</summary>
+3. 如果没有文件名，或文件名在去除起止时间后为空，或文件名重复，则自动在文件名后添加`_2`以免出现错误。
 
-```sh
-viztracer --open my_script.py arg1 arg2
-viztracer -o result.html --open my_script.py arg1 arg2
-```
+## TODO
 
-</details>
+1. 随机排列文件的输出命名支持标签和文件名的可选输出（已支持该操作，但未添加到界面）。
+2. `mutagen`库替换为其他库，以减少依赖。
+3. 界面美化。
+4. 初始化路径的快速设置和替换（当前仅支持自动设置为当前目录）。
+5. 测试用例的编写。
+6. 分离前后端逻辑，以便于后续的扩展。
+7. 结果输出txt文件的增加（当前仅随机排列后输出）。
+8. 是否从`ffmpeg`和`mp3gain`中提取所用到的源代码，嵌入到程序中，以减少依赖和程序大小。
+9. 标签调整功能的增加。
 
-<details>
+## 作者
 
-<summary>
-modules and console scripts(like <code>flask</code>) are supported as well
-</summary>
+`MP3Random`由[凌乱之主](https://github.com/lingluan7-315)开发。
 
-```sh
-viztracer -m your_module
-```
-
-```sh
-viztracer flask run
-```
-
-</details>
-
-### Inline
-
-You can also manually start/stop VizTracer in your script as well.
-
-```python
-from viztracer import VizTracer
-
-tracer = VizTracer()
-tracer.start()
-# Something happens here
-tracer.stop()
-tracer.save() # also takes output_file as an optional argument
-```
-
-Or, you can do it with ```with``` statement
-
-```python
-with VizTracer(output_file="optional.json") as tracer:
-    # Something happens here
-```
-
-### Jupyter
-
-If you are using Jupyter, you can use viztracer cell magics.
-
-```python
-# You need to load the extension first
-%load_ext viztracer
-```
-
-```python
-%%viztracer
-# Your code after
-```
-
-A ``VizTracer Report`` button will appear after the cell and you can click it to view the results
-
-## Advanced Usage
-
-### Trace Filter
-
-VizTracer can filter out the data you don't want to reduce overhead and keep info of a longer time period before you
-dump the log.
-
-* [Min Duration](https://viztracer.readthedocs.io/en/stable/filter.html#min-duration)
-* [Max Stack Depth](https://viztracer.readthedocs.io/en/stable/filter.html#max-stack-depth)
-* [Include Files](https://viztracer.readthedocs.io/en/stable/filter.html#include-files)
-* [Exclude Files](https://viztracer.readthedocs.io/en/stable/filter.html#exclude-files)
-* [Ignore C Function](https://viztracer.readthedocs.io/en/stable/filter.html#ignore-c-function)
-* [Sparse Log](https://viztracer.readthedocs.io/en/stable/filter.html#log-sparse)
-
-### Extra Logs without Code Change
-
-VizTracer can log extra information without changing your source code
-
-* [Any Variable/Attribute with RegEx](https://viztracer.readthedocs.io/en/stable/extra_log.html#log-variable)
-* [Function Entry](https://viztracer.readthedocs.io/en/stable/extra_log.html#log-function-entry)
-* [Variables in Specified Function](https://viztracer.readthedocs.io/en/stable/extra_log.html#log-function-execution)
-* [Garbage Collector Operation](https://viztracer.readthedocs.io/en/stable/extra_log.html#log-garbage-collector)
-* [Function Input Arguments](https://viztracer.readthedocs.io/en/stable/extra_log.html#log-function-arguments)
-* [Function Return Value](https://viztracer.readthedocs.io/en/stable/extra_log.html#log-function-return-value)
-* [Audit Events](https://viztracer.readthedocs.io/en/stable/extra_log.html#log-audit)
-* [Raised Exceptions](https://viztracer.readthedocs.io/en/stable/extra_log.html#log-exception)
-
-### Add Custom Event
-
-VizTracer supports inserting custom events while the program is running. This works like a print debug, but you can know
-when this print happens while looking at trace data.
-
-* [Instant Event](https://viztracer.readthedocs.io/en/stable/custom_event_intro.html#instant-event)
-* [Variable Event](https://viztracer.readthedocs.io/en/stable/custom_event_intro.html#variable-event)
-* [Duration Event](https://viztracer.readthedocs.io/en/stable/custom_event_intro.html#duration-event)
-
-## Misc
-
-### Multi Thread Support
-
-VizTracer supports python native ```threading``` module without the need to do any modification to your code. Just
-start ```VizTracer``` before you create threads and it will just work.
-
-For other multi-thread scenarios, you can use ``enable_thread_tracing()`` to notice VizTracer about the thread to trace
-it.
-
-[![example_img](https://github.com/gaogaotiantian/viztracer/blob/master/img/multithread_example.png)](https://github.com/gaogaotiantian/viztracer/blob/master/img/multithread_example.png)
-
-Refer to [multi thread docs](https://viztracer.readthedocs.io/en/stable/concurrency.html) for details
-
-### Multi Process Support
-
-VizTracer supports ```subprocess```, ```multiprocessing```, ```os.fork()```, ```concurrent.futures```, and ```loky```
-out of the box.
-
-For more general multi-process cases, VizTracer can support with some extra steps.
-
-[![example_img](https://github.com/gaogaotiantian/viztracer/blob/master/img/multiprocess_example.png)](https://github.com/gaogaotiantian/viztracer/blob/master/img/multiprocess_example.png)
-
-Refer to [multi process docs](https://viztracer.readthedocs.io/en/stable/concurrency.html) for details
-
-### Async Support
-
-VizTracer supports ```asyncio``` natively, but could enhance the report by using ```--log_async```.
-
-[![example_img](https://github.com/gaogaotiantian/viztracer/blob/master/img/async_example.png)](https://github.com/gaogaotiantian/viztracer/blob/master/img/async_example.png)
-
-Refer to [async docs](https://viztracer.readthedocs.io/en/stable/concurrency.html) for details
-
-### Flamegraph
-
-VizTracer can show flamegraph of traced data.
-
-```sh
-vizviewer --flamegraph result.json
-```
-
-[![example_img](https://github.com/gaogaotiantian/viztracer/blob/master/img/flamegraph.png)](https://github.com/gaogaotiantian/viztracer/blob/master/img/flamegraph.png)
-
-### Remote attach
-
-VizTracer supports remote attach to an arbitrary Python process to trace it, as long as viztracer is importable
-
-Refer to [remote attach docs](https://viztracer.readthedocs.io/en/stable/remote_attach.html)
-
-### JSON alternative
-
-VizTracer needs to dump the internal data to json format. It is recommended for the users to install ```orjson```, which
-is much faster than the builtin ```json``` library. VizTracer will try to import ```orjson``` and fall back to the
-builtin ```json``` library if ```orjson``` does not exist.
-
-## Performance
-
-VizTracer will introduce 2x to 3x overhead in the worst case. The overhead is much better if there are less function
-calls or if filters are applied correctly.
-
-<details>
-
-<summary>
-An example run for test_performance with Python 3.8 / Ubuntu 18.04.4 on Github VM
-</summary>
-
-```sh
-fib:
-0.000678067(1.00)[origin]
-0.019880272(29.32)[py] 0.011103901(16.38)[parse] 0.021165599(31.21)[json]
-0.001344933(1.98)[c] 0.008181911(12.07)[parse] 0.015789866(23.29)[json]
-0.001472846(2.17)[cProfile]
-
-hanoi     (6148, 4100):
-0.000550255(1.00)[origin]
-0.016343521(29.70)[py] 0.007299123(13.26)[parse] 0.016779364(30.49)[json]
-0.001062505(1.93)[c] 0.006416136(11.66)[parse] 0.011463236(20.83)[json]
-0.001144914(2.08)[cProfile]
-
-qsort     (8289, 5377):
-0.002817679(1.00)[origin]
-0.052747431(18.72)[py] 0.011339725(4.02)[parse] 0.023644345(8.39)[json]
-0.004767673(1.69)[c] 0.008735166(3.10)[parse] 0.017173703(6.09)[json]
-0.007248019(2.57)[cProfile]
-
-slow_fib  (1135, 758):
-0.028759652(1.00)[origin]
-0.033994071(1.18)[py] 0.001630461(0.06)[parse] 0.003386635(0.12)[json]
-0.029481623(1.03)[c] 0.001152415(0.04)[parse] 0.002191417(0.08)[json]
-0.028289305(0.98)[cProfile]
-```
-
-</details>
-
-## Documentation
-
-For full documentation, please
-see [https://viztracer.readthedocs.io/en/stable](https://viztracer.readthedocs.io/en/stable)
-
-## Bugs/Requests
-
-Please send bug reports and feature requests
-through [github issue tracker](https://github.com/gaogaotiantian/viztracer/issues). VizTracer is currently under
-development now and it's open to any constructive suggestions.
-
-## License
-
-Copyright 2020-2023 Tian Gao.
-
-Distributed under the terms of
-the  [Apache 2.0 license](https://github.com/gaogaotiantian/viztracer/blob/master/LICENSE).
+程序采用LGPL协议开源，源代码托管在[GitHub]()上。

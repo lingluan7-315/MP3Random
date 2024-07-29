@@ -13,6 +13,7 @@ from random import shuffle
 from re import match, compile
 from shutil import copy, rmtree
 
+# TODO: mutagen库是GPL开源协议的，尝试使用其他库
 from mutagen.mp3 import MP3
 
 from utils import create_path, time_list_from, update_progress

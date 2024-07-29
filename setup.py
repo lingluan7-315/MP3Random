@@ -2,11 +2,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='MP3Random',
-    version='0.1',
-    description='A random MP3 player with a GUI built using pywebview.',
-    author='Your Name',
-    author_email='your.email@example.com',
-    url='https://github.com/yourusername/MP3Random',
+    version='1.0',
+    description='Random music files by index',
+    author='Ling Luan',
+    author_email='2021051531@nwafu.edu.cn',
+    url='https://github.com/lingluan7-315/MP3Random',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
