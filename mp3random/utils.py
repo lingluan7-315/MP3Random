@@ -9,9 +9,11 @@
 - makedirs: 若文件夹不存在则创建文件夹，并返回标准化的路径
 - time_from: 将时间秒数格式化为“0h0m0s”格式，若秒数小于0，则输出为0。
 - time_list_from: 格式化时间列表，得到总时长（-h-m-s）格式、平均时长（-m-s）格式
+- check_dependence: 检查依赖是否存在（如ffmpeg.exe、mp3gain.exe）
 """
 import logging
 from os import path, makedirs
+from shutil import which
 
 
 def create_logger(log_name: str = 'MP3Random', log_file: str = 'mp3random.log',
@@ -96,14 +98,32 @@ def check_dependence(dependence: str) -> bool:
     :param dependence: 依赖的名称
     :return: 是否存在
     """
-    # 检查当前文件夹下是否存在该依赖
+    # 检查是否存在该依赖
     if path.exists(dependence):
         return True
     # 检查环境变量中是否存在该依赖
-    elif path.exists(path.join(path.dirname(__file__), dependence)):
+    elif which(dependence):
         return True
     else:
         return False
+
+
+def update_progress(process_inner_list, current_value: int, total_value: int, old_file, new_file):
+    """
+    更新进度条
+
+    :param process_inner_list: 进度条控件列表，包括进度条、进度值、旧文件、新文件
+    :param current_value: 当前值
+    :param total_value: 总值
+    :param old_file: 旧文件
+    :param new_file: 新文件
+    """
+    progress, progress_value, process_old_file, process_new_file = process_inner_list
+    progress.attributes['value'] = current_value
+    progress.attributes['max'] = total_value
+    progress_value.text = f'{current_value}/{total_value}'
+    process_old_file.text = old_file
+    process_new_file.text = new_file
 
 
 if __name__ == '__main__':

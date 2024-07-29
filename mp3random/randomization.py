@@ -15,14 +15,15 @@ from shutil import copy, rmtree
 
 from mutagen.mp3 import MP3
 
-from utils import create_path, time_list_from
+from utils import create_path, time_list_from, update_progress
 
 
-def _get_random(music_files: list[str]) -> (list[str], int, float):
+def _get_random(music_files: list[str], process_inner_list: list) -> (list[str], int, float):
     """
     随机排列音乐文件
 
     :param music_files: 音乐文件列表
+    :param process_inner_list: 进度条控件列表
     :return: 随机排列的结果，包括文件名列表、最小相邻次数、随机质量
     """
     count = len(music_files)
@@ -40,6 +41,7 @@ def _get_random(music_files: list[str]) -> (list[str], int, float):
     max_num_range = int(count * 0.7)
     # 遍历每个可能的分组大小
     for max_num in range(1, max_num_range + 1):
+        update_progress(process_inner_list, max_num, max_num_range, '', '')
         # 按照最大允许数量分组
         groups = [sorted_files[i: i + max_num] for i in range(0, count, max_num)]
 
@@ -79,7 +81,7 @@ def _get_random(music_files: list[str]) -> (list[str], int, float):
     return best_result, min_adjacent_count, best_quality
 
 
-def mp3_random(input_path: str, output_path: str, result_txt: str, logger: logging.Logger,
+def mp3_random(input_path: str, output_path: str, result_txt: str, logger: logging.Logger, process_inner_list: list,
                label_flag: bool = False, name_flag: bool = False, remove_flag: bool = False):
     """
     进行随机排列，并将结果保存至文件夹，生成结果统计txt文件
@@ -88,6 +90,7 @@ def mp3_random(input_path: str, output_path: str, result_txt: str, logger: loggi
     :param output_path: 输出文件夹（随机排列后的音乐文件保存路径）
     :param result_txt: 结果统计txt文件
     :param logger: 日志对象
+    :param process_inner_list: 进度条控件列表
     :param label_flag: 是否将标签添加到随机后文件名，若标签和原文件名都添加，则标签在前
     :param name_flag: 是否将原文件名添加到随机后文件名，若标签和原文件名都添加，则标签在前
     :param remove_flag: 是否删除原文件夹，默认为False
@@ -108,7 +111,7 @@ def mp3_random(input_path: str, output_path: str, result_txt: str, logger: loggi
         # 重新创建随机文件保存目录
         create_path(output_path)
         # 进行随机排列
-        random_result, random_same, random_quality = _get_random(music_files)
+        random_result, random_same, random_quality = _get_random(music_files, process_inner_list)
         # 创建符合文件数量的相应数字符串型列表
         new_ids = ["{:0{}d}".format(i, len(str(count))) for i in range(1, count + 1)]
 

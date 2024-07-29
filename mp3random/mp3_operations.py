@@ -18,7 +18,7 @@ from subprocess import run, CREATE_NO_WINDOW
 
 from mutagen.mp3 import MP3
 
-from utils import create_path
+from utils import create_path, update_progress
 
 
 def backup(input_path: str, output_path: str, logger: logging.Logger) -> bool:
@@ -48,7 +48,7 @@ def backup(input_path: str, output_path: str, logger: logging.Logger) -> bool:
     return True
 
 
-def to_mp3(input_path: str, output_path: str, logger: logging.Logger,
+def to_mp3(input_path: str, output_path: str, logger: logging.Logger, process_inner_list: list,
            ffmpeg_path: str = 'ffmpeg.exe', remove_flag: bool = True):
     """
     调用 ffmpeg.exe 将各种格式转换为 mp3 格式
@@ -56,6 +56,7 @@ def to_mp3(input_path: str, output_path: str, logger: logging.Logger,
     :param input_path: 输入文件夹（转换前音乐文件所在的路径）
     :param output_path: 输出文件夹（转换后音乐文件所在的路径）
     :param logger: 日志记录器
+    :param process_inner_list: 进度条控件列表
     :param ffmpeg_path: ffmpeg.exe 文件的路径，默认为 'ffmpeg.exe'
     :param remove_flag: 是否删除原文件，默认为 True
     """
@@ -65,14 +66,17 @@ def to_mp3(input_path: str, output_path: str, logger: logging.Logger,
 
     # 读取文件列表
     old_files = listdir(input_path)
+    count = len(old_files)
     if old_files:  # 如果读取的文件列表不为空
-        for old_file in old_files:
+        for i, old_file in enumerate(old_files):
             # 记录两个文件名作为更新正在操作文件的依据
             t = old_file.rfind('.')
             new_file = old_file[:t] + '.mp3'
             # 组合完整路径
             old = input_path + sep + old_file  # 旧文件的完整路径
             new = create_path(output_path) + sep + new_file  # 新文件的完整路径，位于music_path文件夹且添加MP3后缀
+            # 更新进度条
+            update_progress(process_inner_list, i + 1, count, old_file, new_file)
             try:
                 # 用 ffmpeg.exe 将其转化到新位置的 MP3 ，并设定码率为 128k
                 # 文件名两侧加上 “ ，可以防止 ffmpeg.exe 不识别空格、冒号等字符，使用 -y 参数可以覆盖同名文件
@@ -158,7 +162,7 @@ def _re_name(files: list[(str, float)]):
     return clip_need, rename_need
 
 
-def mp3_clip(input_path: str, output_path: str, logger: logging.Logger,
+def mp3_clip(input_path: str, output_path: str, logger: logging.Logger, process_inner_list: list,
              ffmpeg_path: str = 'ffmpeg.exe', remove_flag: bool = True):
     """
     调用 ffmpeg.exe 进行音乐切片
@@ -166,6 +170,7 @@ def mp3_clip(input_path: str, output_path: str, logger: logging.Logger,
     :param input_path: 输入文件夹（需要切片的音乐文件所在的路径）
     :param output_path: 输出文件夹（切片后音乐文件所在的路径）
     :param logger: 日志记录器
+    :param process_inner_list: 进度条控件列表
     :param ffmpeg_path: ffmpeg.exe 文件的路径，默认为 'ffmpeg.exe'
     :param remove_flag: 是否删除原文件，默认为 True
     """
@@ -175,6 +180,9 @@ def mp3_clip(input_path: str, output_path: str, logger: logging.Logger,
     music_files = listdir(input_path)
     music_files = [(file, MP3(input_path + sep + file).info.length) for file in music_files if file.endswith('.mp3')]
     clip_need, rename_need = _re_name(music_files)  # 读取需要切片和需要重命名的文件列表
+    count = 1 + len(clip_need)
+    # 更新进度条
+    update_progress(process_inner_list, 1, count, input_path, input_path)
     # 重命名文件（耗时极少，将其视为 1 个 事件）
     for old_name, new_name in rename_need:
         try:
@@ -187,10 +195,12 @@ def mp3_clip(input_path: str, output_path: str, logger: logging.Logger,
             logger.warning(f'文件已存在：{new_name}')
     # 如果有需要切片的文件
     if clip_need:
-        for old_name, new_name, sta, end in clip_need:  # 解包需切片文件列表：旧文件名，新文件名，切片起始时间，切片结束时间
+        for i, (old_name, new_name, sta, end) in enumerate(clip_need):  # 解包需切片文件列表：旧文件名，新文件名，切片起始时间，切片结束时间
             # 设置新旧文件完整路径
             old = input_path + sep + old_name
             new = output_path + sep + new_name
+            # 更新进度条
+            update_progress(process_inner_list, i + 2, count, old_name, new_name)
             try:
                 # 利用 subprocess.run 调用 ffmpeg.exe 进行音乐切片处理(单位:s)，不调用命令行
                 # '-vn -acodec copy' 可以使用原音乐编码，否则编码不同会导致表现出的长度不同
@@ -210,21 +220,26 @@ def mp3_clip(input_path: str, output_path: str, logger: logging.Logger,
         logger.info('无需切片')
 
 
-def mp3_gain(input_path: str, db: int, logger: logging.Logger, mp3gain_path: str = 'mp3gain.exe'):
+def mp3_gain(input_path: str, db: int, logger: logging.Logger, process_inner_list: list,
+             mp3gain_path: str = 'mp3gain.exe'):
     """
     调用 mp3gain.exe 程序将输入 mp3 音乐文件的音量调整到相应的分贝数
 
     :param input_path: 输入文件夹（需要调整音量的音乐文件所在的路径）
     :param db: 音乐文件准备调整到的分贝数
     :param logger: 日志记录器
+    :param process_inner_list: 进度条控件列表
     :param mp3gain_path: mp3gain.exe 文件的路径，默认为 'mp3gain.exe'
     """
     # 转换为 normal 路径
     input_path = path.normpath(input_path)
     # 读取音乐文件列表
     music_files = listdir(input_path)
+    count = len(music_files)
     if music_files:  # 如果音乐文件列表不为空
-        for music in music_files:
+        for i, music in enumerate(music_files):
+            # 更新进度条
+            update_progress(process_inner_list, i + 1, count, music, music)
             try:
                 # 利用 subprocess.Popen 调用 mp3gain.exe 进行音量调整，不调用命令行
                 # /d 意为调整分贝数，为相对于 89dB 的相对分贝数； /c 代表无需确认； /r 后跟需要进行操作的文件

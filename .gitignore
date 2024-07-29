@@ -84,7 +84,6 @@ ehthumbs.db
 *.sublime-workspace
 
 # Custom static files (optional)
-mp3random/static/
 other/
 
 # Other
